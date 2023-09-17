@@ -14,13 +14,21 @@ async(req,res)=>{
     }
     try {
         const {title,description,tag}=req.body;
+        const newNote={};
+        if(tag!==''){
+            newNote.tag=tag
+        }
+        newNote.title=title,
+        newNote.description=description
         const note=await UserNotes.create({
-            title,description,tag,
+             title:newNote.title,
+             description:newNote.description,
+             tag:newNote.tag,
             user:req.body.id
         })
+        
         res.json({"success":"true" ,note})
     } catch (error) {
-        console.log(error)
         res.status(500).json({"success":"false","error":"some internal servor error occured"});
     }
 })
@@ -38,22 +46,25 @@ router.get('/fetchAllNotes',fetchUser,async(req,res)=>{
 
 //update Notes
 router.put('/updateNote/:id',
-body('title').isLength({min:1}),
-body('description').isLength({min:1}),
 async(req,res)=>{
-    const err=validationResult(req);
-    if(!err.isEmpty()){
-        res.status(400).send(err);
-    }
     try {
         const {title,description,tag}=req.body;
         const _id=req.params.id;
-        const note=await UserNotes.findByIdAndUpdate(_id,{
-            title,description,tag
-        },{
+        const newNote={}
+        if(title!==''){
+            newNote.title=title
+        }
+       if(description!==''){
+        newNote.description=description
+       }
+       if(tag!==''){
+        newNote.tag=tag
+       }
+        const note=await UserNotes.findByIdAndUpdate(_id,newNote,{
             new:true
         });
-        res.send(note);
+        res.json({success:"true",note});
+
     } catch (error) {
         res.status(500).json({success:"false","error":"Internal server error"});
     }
